@@ -1,0 +1,78 @@
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin-bottom: 20px;
+  padding-left: 4px;
+}
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.historyItem {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 20px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-card);
+  border: var(--glass-border);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.historyItem::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: var(--glass-lighting);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.historyItem:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: var(--shadow-floating);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.historyItem:active {
+  transform: scale(0.98);
+}
+
+.historyInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 1;
+}
+
+.historyTitle {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--gray-800);
+}
+
+.historyDept {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary);
+  background: var(--primary-soft);
+  padding: 4px 10px;
+  border-radius: 8px;
+  width: fit-content;
+}

@@ -78,16 +78,6 @@ export default function AnalysisSection({ loading, data, urgencyStyle }: Analysi
           overflow: hidden;
           margin-bottom: 24px; /* 확실한 간격 추가 */
         }
-        .highlight-card::before {
-          content: "";
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 6px;
-          background: var(--primary-gradient);
-          opacity: 0.8;
-        }
         .dept-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
         .icon-circle { 
           width: 72px; 

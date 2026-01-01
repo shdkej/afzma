@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocation } from '@/hooks/useLocation';
 import { fetchAllHistories } from '@/lib/medical-api';
+import styles from './page.module.css';
 
 // Sub-components
 import HomeHeader from '@/components/home/HomeHeader';
@@ -50,12 +51,12 @@ export default function Home() {
   };
 
   return (
-    <div className="home-container">
+    <div className={styles.homeContainer}>
       <HomeHeader />
 
-      <div className="content">
-        <HistorySection histories={histories} onItemClick={handleHistoryItemClick} />
+      <div className={styles.content}>
         <GuideSection />
+        <HistorySection histories={histories} onItemClick={handleHistoryItemClick} />
       </div>
 
       <ChatInput
@@ -64,31 +65,6 @@ export default function Home() {
         onSubmit={handleSubmit}
         isLoading={isLoading}
       />
-
-      <style jsx>{`
-        .home-container {
-          padding: 24px 20px 60px; /* 60px bottom to clear disclaimer footer */
-          height: 100vh;
-          display: flex;
-          flex-direction: column;
-          gap: 24px;
-          overflow: hidden;
-        }
-        .content {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          gap: 24px;
-          overflow-y: auto;
-          padding-bottom: 20px;
-          /* Hide scrollbar */
-          scrollbar-width: none;
-          -ms-overflow-style: none;
-        }
-        .content::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
     </div>
   );
 }
