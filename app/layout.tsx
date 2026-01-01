@@ -16,11 +16,10 @@ export default function RootLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover" />
       </head>
-      <body>
-        <main className="layout-main">{children}</main>
+      <body suppressHydrationWarning>
+        <main className="layout-main" vaul-drawer-wrapper="">{children}</main>
         <footer className="disclaimer-footer">
-          이 결과는 AI의 조언이며 실제 의사의 진단과 다를 수 있습니다.
-          응급 상황 시 즉시 119를 호출하세요.
+          이 결과는 AI의 조언이며 실제 의사의 진단과 다를 수 있습니다. 응급 상황 시 즉시 119를 호출하세요.
         </footer>
       </body>
     </html>

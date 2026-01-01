@@ -2,7 +2,9 @@ import { ChatHistory, Message, MedicalAnalysis } from './entity';
 
 export interface ChatRequestDTO {
   message: string;
-  chatId?: string; // Optional: to continue a conversation
+  chatId?: string;
+  lat?: number;
+  lon?: number;
 }
 
 export interface ChatResponseDTO {

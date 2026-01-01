@@ -4,9 +4,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { chatRepository } from './repository';
 import { ChatHistory, Message, MedicalAnalysis, Hospital } from './entity';
 
+import { DEPARTMENT_CODES } from './constants';
+import { parseStringPromise } from 'xml2js';
+
 export class MedicalService {
   private openai: OpenAI | null = null;
   private gemini: GoogleGenerativeAI | null = null;
+  private hiraApiKey: string | undefined;
 
   constructor() {
     if (process.env.OPENAI_API_KEY) {
@@ -15,15 +19,26 @@ export class MedicalService {
     if (process.env.GEMINI_API_KEY) {
       this.gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     }
+    this.hiraApiKey = process.env.HIRA_API_KEY;
   }
 
-  async processSymptom(message: string, chatId?: string): Promise<{ chat: ChatHistory; analysis: MedicalAnalysis; hospitals: Hospital[] }> {
+  async processSymptom(message: string, chatId?: string, lat?: number, lon?: number): Promise<{ chat: ChatHistory; analysis: MedicalAnalysis; hospitals: Hospital[] }> {
     let chat: ChatHistory;
     
     if (chatId) {
       const existingChat = await chatRepository.getChatById(chatId);
-      if (!existingChat) throw new Error('Chat not found');
-      chat = existingChat;
+      if (existingChat) {
+        chat = existingChat;
+      } else {
+        chat = {
+          id: chatId,
+          title: message.slice(0, 20),
+          department: '',
+          messages: [],
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        };
+      }
     } else {
       chat = {
         id: uuidv4(),
@@ -35,7 +50,6 @@ export class MedicalService {
       };
     }
 
-    // Add user message
     const userMessage: Message = {
       id: uuidv4(),
       role: 'user',
@@ -44,13 +58,9 @@ export class MedicalService {
     };
     chat.messages.push(userMessage);
 
-    // Call AI
     const analysis = await this.getAIAnalysis(chat.messages);
-    
-    // Update chat info
     chat.department = analysis.department;
     
-    // Add assistant message (store the raw JSON or formatted string)
     const assistantMessage: Message = {
       id: uuidv4(),
       role: 'assistant',
@@ -61,8 +71,8 @@ export class MedicalService {
 
     await chatRepository.saveChat(chat);
 
-    // Get recommended hospitals (mocking for now)
-    const hospitals = this.getRecommendedHospitals(analysis.department);
+    // Get recommended hospitals from HIRA API
+    const hospitals = await this.getRecommendedHospitals(analysis.department, lat, lon);
 
     return { chat, analysis, hospitals };
   }
@@ -75,21 +85,16 @@ export class MedicalService {
 
       Response Format (JSON):
       {
-        "department": "진료과목명 (예: 내과, 정형외과, 이비인후과 등)",
+        "department": "진료과목명 (예: 내과, 정형외과 등)",
+        "departmentReason": "해당 과를 추천하는 이유 (이미지의 예시처럼 '~증상은 주로 ~과에서 진료받으실 수 있습니다. ...' 형태)",
+        "urgency": "낮음, 보통, 높음, 응급 중 하나",
         "summary": "증상에 대한 짧은 요약",
-        "explanation": "해당 증상이 나타날 수 있는 원인에 대한 친절한 설명",
+        "explanation": "해당 증상이 나타날 수 있는 원인과 대처법을 포함한 상세 설명",
         "cautions": "환자가 주의해야 할 사항",
-        "copingMethods": "즉시 취할 수 있는 조치나 대처 방법"
+        "copingMethods": "즉시 취할 수 있는 조치"
       }
-      
-      Requirements:
-      - department must be clear and concise.
-      - explanation should be friendly and calming.
-      - ALWAYS include a disclaimer that this is not a medical diagnosis.
     `;
 
-    // Try Gemini first, then OpenAI as fallback (or vice versa based on user preference)
-    // For this implementation, I'll attempt whichever is available.
     try {
       if (this.gemini) {
         const model = this.gemini.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -107,8 +112,7 @@ export class MedicalService {
           generationConfig: { responseMimeType: "application/json" }
         });
         
-        const response = result.response.text();
-        return JSON.parse(response);
+        return JSON.parse(result.response.text());
       } else if (this.openai) {
         const response = await this.openai.chat.completions.create({
           model: "gpt-4o-mini",
@@ -120,16 +124,16 @@ export class MedicalService {
         });
         
         const content = response.choices[0].message.content;
-        if (!content) throw new Error('Empty response from OpenAI');
-        return JSON.parse(content);
+        return JSON.parse(content || '{}');
       } else {
-        // Mock response if no API keys (for development/demo)
         return {
-          department: "내과 (가정의학과)",
-          summary: "증상에 대한 모의 분석 결과입니다.",
-          explanation: "API 키가 설정되지 않아 모의 데이터를 반환합니다. 실제 운영 시 API 키를 등록해주세요.",
-          cautions: "증상이 심해지면 즉시 병원을 방문하세요.",
-          copingMethods: "충분한 휴식을 취하고 수분을 섭취하세요."
+          department: "내과",
+          departmentReason: "발열과 호흡기 증상은 주로 내과에서 진료받으실 수 있습니다.",
+          urgency: "보통",
+          summary: "API 키 미설정 모의 결과",
+          explanation: "API 키가 없어 모의 데이터를 반환합니다.",
+          cautions: "주의하세요.",
+          copingMethods: "쉬세요."
         };
       }
     } catch (error) {
@@ -138,35 +142,82 @@ export class MedicalService {
     }
   }
 
-  private getRecommendedHospitals(department: string): Hospital[] {
-    // Mock data for hospitals
+  private async getRecommendedHospitals(department: string, lat?: number, lon?: number): Promise<Hospital[]> {
+    if (!this.hiraApiKey) {
+      console.warn('HIRA_API_KEY is missing. Returning mock data.');
+      return this.getMockHospitals();
+    }
+
+    try {
+      // Find department code
+      const deptKey = Object.keys(DEPARTMENT_CODES).find(k => department.includes(k)) || "내과";
+      const deptCode = DEPARTMENT_CODES[deptKey];
+
+      const baseUrl = 'https://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList';
+      // serviceKey must not be double encoded. URLSearchParams encodes it.
+      // So we append it manually.
+      const queryParams = new URLSearchParams({
+        pageNo: '1',
+        numOfRows: '10',
+        dgsbjtCd: deptCode,
+      });
+
+      if (lat && lon) {
+        queryParams.append('xPos', lon.toString());
+        queryParams.append('yPos', lat.toString());
+        queryParams.append('radius', '5000'); // Increase to 5km
+      }
+
+      const url = `${baseUrl}?serviceKey=${this.hiraApiKey}&${queryParams.toString()}`;
+      console.log('Fetching hospitals from:', url.replace(this.hiraApiKey || '', 'HIDDEN'));
+      
+      const response = await fetch(url);
+      const xml = await response.text();
+      const result = await parseStringPromise(xml);
+
+      // Robust check for items
+      const body = result?.response?.body?.[0];
+      const itemsContainer = body?.items?.[0];
+      const items = itemsContainer?.item || [];
+      
+      if (items.length === 0) {
+        console.warn('No hospitals found from HIRA API. Returning mocks.');
+        return this.getMockHospitals();
+      }
+
+      return items.map((item: any) => {
+        try {
+          return {
+            id: item.ykiho?.[0] || uuidv4(),
+            name: item.yadmNm?.[0] || '병원 이름 정보 없음',
+            address: item.addr?.[0] || '주소 정보 없음',
+            phone: item.telno?.[0] || '전화번호 정보 없음',
+            department: [deptKey],
+            description: `${item.clCdNm?.[0] || '일반'} | ${item.emuberNm?.[0] || '응급실 미운영'}`,
+            image: `https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=1000&auto=format&fit=crop`
+          };
+        } catch (e) {
+          console.error('Item mapping error:', e);
+          return null;
+        }
+      }).filter((h: any) => h !== null) as Hospital[];
+
+    } catch (error) {
+      console.error('HIRA API Error:', error);
+      return this.getMockHospitals();
+    }
+  }
+
+  private getMockHospitals(): Hospital[] {
     return [
       {
         id: '1',
         name: '서울아산병원',
         address: '서울특별시 송파구 올림픽로43길 88',
         phone: '1688-7575',
-        department: ['내과', '외과', '소아과'],
-        description: '국내 최대 규모의 종합병원으로 최첨단 의료 시설을 갖추고 있습니다.',
+        department: ['내과'],
+        description: '국내 최대 규모의 종합병원',
         image: 'https://images.unsplash.com/photo-1587350859743-b15272ce100a?q=80&w=1000&auto=format&fit=crop'
-      },
-      {
-        id: '2',
-        name: '삼성서울병원',
-        address: '서울특별시 강남구 일원로 81',
-        phone: '1599-3114',
-        department: ['내과', '정형외과', '이비인후과'],
-        description: '환자 중심의 의료 서비스를 제공하며 암 치료에 특화되어 있습니다.',
-        image: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=1000&auto=format&fit=crop'
-      },
-      {
-        id: '3',
-        name: '강남세브란스병원',
-        address: '서울특별시 강남구 언주로 211',
-        phone: '1599-6114',
-        department: ['내과', '안과', '피부과'],
-        description: '강남 지역의 대표적인 대학병원으로 전문적인 진료를 제공합니다.',
-        image: 'https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=1000&auto=format&fit=crop'
       }
     ];
   }
@@ -175,8 +226,26 @@ export class MedicalService {
     return chatRepository.getAllChats();
   }
 
-  async getChatDetail(id: string) {
-    return chatRepository.getChatById(id);
+  async getChatDetail(id: string, lat?: number, lon?: number) {
+    const chat = await chatRepository.getChatById(id);
+    if (!chat) return null;
+
+    const lastAssistant = [...chat.messages].reverse().find(m => m.role === 'assistant');
+    let analysis: MedicalAnalysis | null = null;
+    let hospitals: Hospital[] = [];
+
+    if (lastAssistant) {
+      try {
+        analysis = JSON.parse(lastAssistant.content);
+        if (analysis) {
+          hospitals = await this.getRecommendedHospitals(analysis.department, lat, lon);
+        }
+      } catch (e) {
+        console.error('Failed to parse analysis from history:', e);
+      }
+    }
+
+    return { chat, analysis, hospitals };
   }
 }
 

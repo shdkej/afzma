@@ -6,14 +6,14 @@ export class MedicalController {
   async handleChatRequest(req: NextRequest) {
     try {
       const body: ChatRequestDTO = await req.json();
-      const { message, chatId } = body;
+      const { message, chatId, lat, lon } = body;
 
       if (!message) {
         return NextResponse.json({ error: 'Message is required' }, { status: 400 });
       }
 
       // Read like a book: Process symptoms -> Return result
-      const result = await medicalService.processSymptom(message, chatId);
+      const result = await medicalService.processSymptom(message, chatId, lat, lon);
 
       return NextResponse.json(result);
     } catch (error: any) {
@@ -38,13 +38,13 @@ export class MedicalController {
     }
   }
 
-  async handleGetChatDetail(id: string) {
+  async handleGetChatDetail(id: string, lat?: number, lon?: number) {
     try {
-      const chat = await medicalService.getChatDetail(id);
-      if (!chat) {
+      const result = await medicalService.getChatDetail(id, lat, lon);
+      if (!result) {
         return NextResponse.json({ error: 'History not found' }, { status: 404 });
       }
-      return NextResponse.json({ history: chat });
+      return NextResponse.json(result);
     } catch (error: any) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }

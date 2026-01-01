@@ -9,5 +9,13 @@ export async function GET(
   // In Next.js 14 it was synchronous, in 15 it's a promise.
   // I'll assume 15 since it's @latest.
   const { id } = await params; 
-  return medicalController.handleGetChatDetail(id);
+  const searchParams = req.nextUrl.searchParams;
+  const lat = searchParams.get('lat');
+  const lon = searchParams.get('lon');
+
+  return medicalController.handleGetChatDetail(
+    id, 
+    lat ? parseFloat(lat) : undefined, 
+    lon ? parseFloat(lon) : undefined
+  );
 }

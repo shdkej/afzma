@@ -26,6 +26,8 @@ export interface Hospital {
 
 export interface MedicalAnalysis {
   department: string;
+  departmentReason: string;
+  urgency: '낮음' | '보통' | '높음' | '응급';
   summary: string;
   explanation: string;
   cautions: string;
