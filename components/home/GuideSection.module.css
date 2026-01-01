@@ -1,42 +1,26 @@
 .guideCard {
-  background: linear-gradient(135deg, #FFFFFF 0%, #F0EFEB 100%);
-  padding: 24px;
-  border-radius: var(--radius);
+  padding: 10px 4px;
   color: var(--gray-600);
-  box-shadow: var(--shadow-card);
-  border: var(--glass-border);
-  position: relative;
-  overflow: hidden;
-}
-
-.guideCard::after {
-  content: "";
-  position: absolute;
-  top: -50%;
-  right: -50%;
-  width: 200px;
-  height: 200px;
-  background: radial-gradient(circle, var(--primary-soft) 0%, transparent 70%);
-  opacity: 0.6;
-  border-radius: 50%;
-  pointer-events: none;
 }
 
 .guideCard h3 {
   font-size: 16px;
   font-weight: 700;
-  margin-bottom: 16px;
-  color: var(--primary);
-  position: relative;
-  z-index: 1;
+  margin-bottom: 12px;
+  color: var(--gray-800);
 }
 
 .guideCard ul {
   list-style: none;
-  font-size: 14px;
+  font-size: 15px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  position: relative;
-  z-index: 1;
+  gap: 12px;
+}
+
+.guideCard li {
+  color: var(--gray-500);
+  padding-left: 10px;
+  border-left: 2px solid var(--gray-200);
+  line-height: 1.4;
 }

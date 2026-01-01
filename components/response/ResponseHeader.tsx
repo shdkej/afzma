@@ -1,40 +1,41 @@
 import { ChevronLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-interface ResponseHeaderProps {
-    userSymptom: string;
-}
+interface ResponseHeaderProps { }
 
-export default function ResponseHeader({ userSymptom }: ResponseHeaderProps) {
-    const router = useRouter();
+export default function ResponseHeader({ }: ResponseHeaderProps) {
+  const router = useRouter();
 
-    return (
-        <header className="page-header">
-            <button onClick={() => router.push('/')} className="back-button">
-                <ChevronLeft size={24} />
-            </button>
-            <div className="header-info">
-                <span className="label">입력한 증상</span>
-                <h1 className="symptom-title">{userSymptom}</h1>
-            </div>
-            <div style={{ width: 44 }} />
-            <style jsx>{`
+  return (
+    <header className="page-header">
+      <button onClick={() => router.push('/')} className="back-button">
+        <ChevronLeft size={24} />
+      </button>
+      <div style={{ flex: 1 }} />
+      <style jsx>{`
         .page-header { 
-          padding: 16px 20px; 
+          padding: 12px 20px; 
           display: flex; 
           align-items: center; 
-          gap: 16px; 
+          gap: 12px; 
           flex-shrink: 0;
-          background: rgba(240, 239, 235, 0.9); 
-          backdrop-filter: blur(10px);
-          border-bottom: 1px solid rgba(0,0,0,0.05);
+          background: transparent;
+          border-bottom: none;
         }
-        .header-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-        .header-info .label { font-size: 12px; color: var(--gray-500); font-weight: 500; }
-        .symptom-title { font-size: 18px; font-weight: 700; color: var(--foreground); }
-        .back-button { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: var(--white); box-shadow: var(--shadow-sm); transition: transform 0.2s; }
-        .back-button:active { transform: scale(0.95); }
+        .back-button { 
+          width: 40px; 
+          height: 40px; 
+          display: flex; 
+          align-items: center; 
+          justify-content: center; 
+          border-radius: 50%; 
+          background: transparent; 
+          transition: background-color 0.2s; 
+          margin-left: -8px; 
+          color: var(--gray-800);
+        }
+        .back-button:active { background: var(--gray-100); }
       `}</style>
-        </header>
-    );
+    </header>
+  );
 }

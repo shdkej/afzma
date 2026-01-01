@@ -89,7 +89,7 @@ export default function HospitalBottomSheet({
           pointer-events: auto !important;
           background: #FFFFFF;
           border-radius: 32px 32px 0 0; 
-          box-shadow: 0 -10px 40px rgba(0,0,0,0.15); 
+          box-shadow: 0 -10px 40px rgba(0,0,0,0.1); 
           z-index: 9999; 
           display: flex; 
           flex-direction: column; 
@@ -103,7 +103,7 @@ export default function HospitalBottomSheet({
           transform: translate3d(0, 0, 0); /* Force GPU acceleration */
         }
         .sheet-handle { 
-          padding: 16px 20px 20px; 
+          padding: 16px 24px 20px; 
           display: flex; 
           flex-direction: column; 
           align-items: center; 
@@ -114,27 +114,27 @@ export default function HospitalBottomSheet({
         }
         .sheet-handle:active { cursor: grabbing; }
         .handle-bar { 
-          width: 48px; 
-          height: 5px; 
-          background: var(--gray-200); 
-          border-radius: 3px; 
+          width: 40px; 
+          height: 4px; 
+          background: var(--gray-300); 
+          border-radius: 2px; 
         }
         .sheet-handle h3 { 
           font-size: 18px; 
           font-weight: 700; 
-          color: var(--gray-800);
+          color: var(--gray-900);
           width: 100%;
           text-align: left;
         }
         .hospital-list { 
           flex: 1; 
-          padding: 20px; 
+          padding: 0; 
           overflow-y: auto !important; 
           -webkit-overflow-scrolling: touch;
           display: flex; 
           flex-direction: column; 
-          gap: 16px; 
-          background: var(--gray-50);
+          gap: 0; 
+          background: var(--white);
           min-height: 0;
         }
         /* Custom styled scrollbar for visibility */
@@ -144,39 +144,44 @@ export default function HospitalBottomSheet({
         .hospital-item { 
           display: flex; 
           gap: 16px; 
-          padding: 16px; 
-          background: var(--white); 
-          border-radius: 20px; 
+          padding: 16px 24px;
+          background: transparent; 
+          border-radius: 0; 
           cursor: pointer; 
-          box-shadow: var(--shadow-sm);
-          border: 1px solid rgba(0,0,0,0.03);
-          transition: all 0.2s ease;
+          box-shadow: none;
+          border: none;
+          border-bottom: 1px solid var(--gray-100);
+          transition: background-color 0.2s ease;
           flex-shrink: 0;
         }
         .hospital-item:hover {
-          transform: translateY(-2px);
-          box-shadow: var(--shadow-md);
+          background-color: var(--gray-50);
+          transform: none;
+          box-shadow: none;
+        }
+        .hospital-item:active {
+          background-color: var(--gray-100);
         }
         .hospital-img { 
-          width: 88px; 
-          height: 88px; 
-          border-radius: 16px; 
+          width: 80px; 
+          height: 80px; 
+          border-radius: 12px; 
           background-size: cover; 
           background-position: center; 
           flex-shrink: 0;
-          box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
+          background-color: var(--gray-100);
         }
         .hospital-info { 
           display: flex; 
           flex-direction: column; 
           justify-content: center; 
-          gap: 6px; 
+          gap: 4px; 
           flex: 1; 
         }
         .hospital-info h4 { 
           font-size: 16px; 
           font-weight: 700; 
-          color: var(--gray-800);
+          color: var(--gray-900);
         }
         .hospital-addr { 
           font-size: 13px; 
@@ -193,16 +198,16 @@ export default function HospitalBottomSheet({
         .hospital-depts span { 
           font-size: 11px; 
           font-weight: 500;
-          background: var(--gray-100); 
+          background: var(--gray-50); 
           padding: 4px 8px; 
           border-radius: 6px; 
           color: var(--gray-600); 
+          border: 1px solid var(--gray-100);
         }
         .skeleton-hospital { 
-          height: 120px; 
+          height: 100px; 
           background: var(--white); 
-          border-radius: 20px; 
-          box-shadow: var(--shadow-sm);
+          border-bottom: 1px solid var(--gray-100);
         }
         .empty-hospitals { 
           padding: 60px 20px; 

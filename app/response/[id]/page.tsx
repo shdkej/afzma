@@ -27,13 +27,14 @@ function ResponseContent() {
 
   return (
     <div className="response-container">
-      <ResponseHeader userSymptom={userSymptom} />
+      <ResponseHeader />
 
       <main className="main-content">
         <AnalysisSection
           loading={loading}
           data={data}
           urgencyStyle={urgencyStyle}
+          userSymptom={userSymptom}
         />
 
         {/* {!loading && (

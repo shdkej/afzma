@@ -14,7 +14,11 @@ export default function HomeHeader() {
         <Activity size={32} color="#2D5A27" />
         <h1>아프지마</h1>
       </motion.div>
-      <p className={styles.subtitle}>어디가 아프신가요? AI가 가야 할 병원을 알려드릴게요.</p>
+      <p className={styles.subtitle}>
+        어디가 아프신가요?
+        <br />
+        AI가 가야 할 병원을 알려드릴게요.
+      </p>
     </div>
   );
 }

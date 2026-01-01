@@ -79,9 +79,13 @@ export class MedicalService {
 
   private async getAIAnalysis(messages: Message[]): Promise<MedicalAnalysis> {
     const systemPrompt = `
-      You are a medical guidance AI. Based on the user's symptoms, provide guidance on which medical department to visit and details about the condition.
-      
-      IMPORTANT: You MUST answer in KOREAN. (모든 응답은 반드시 한국어로 작성하세요.)
+      당신은 의료 안내 AI입니다. 사용자의 증상을 바탕으로 어느 진료과에 방문해야 하는지 안내하고, 해당 상태에 대한 상세 정보를 제공합니다.
+
+      IMPORTANT: 모든 응답은 반드시 한국어로 작성하세요.
+
+      참고사항:
+      - 모든 응답은 JSON 형식으로 반환하세요.
+      - summary는 사용자의 증상에 대한 짧은 요약이고, 사용자가 자신의 질문이 제대로 전달되었는지 확인하기 위한 것입니다. ~이런 증상이시군요 라는 식의 이해한다는 늬앙스로 작성하세요.
 
       Response Format (JSON):
       {

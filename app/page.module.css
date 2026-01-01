@@ -1,10 +1,45 @@
 .homeContainer {
-  padding: 24px 20px 60px; /* 60px bottom to clear disclaimer footer */
+  padding: 24px 20px 60px;
   height: 100vh;
   display: flex;
   flex-direction: column;
   gap: 24px;
   overflow: hidden;
+  background-color: var(--background);
+  position: relative;
+}
+
+.homeContainer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('/doctor-bg.png');
+  background-size: auto 60%;
+  background-position: calc(100% + 100px) calc(50% + 15px); /* 우측으로 더 밀어내어 여백 확보 */
+  background-repeat: no-repeat;
+  opacity: 0.7; /* 은은하게 뒤에 깔리도록 투명도 조정 */
+  z-index: 0;
+  pointer-events: none;
+}
+
+.homeContainer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at bottom right, transparent 20%, var(--background) 70%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.homeContainer > * {
+  position: relative;
+  z-index: 1;
 }
 
 .content {
