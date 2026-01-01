@@ -67,15 +67,16 @@ export default function AnalysisSection({ loading, data, urgencyStyle }: Analysi
             <div style={{ height: 160 }} />
             <style jsx>{`
         .analysis-section { padding: 20px; }
-        .analysis-wrapper { display: flex; flex-direction: column; gap: 20px; }
+        .analysis-wrapper { display: flex; flex-direction: column; }
         .highlight-card { 
           background: linear-gradient(135deg, #FFFFFF 0%, #FAFBFC 100%); 
           padding: 28px; 
           border-radius: 32px; 
           border: var(--glass-border);
-          box-shadow: var(--shadow-card);
+          box-shadow: 0 10px 30px rgba(0,0,0,0.08);
           position: relative;
           overflow: hidden;
+          margin-bottom: 24px; /* 확실한 간격 추가 */
         }
         .highlight-card::before {
           content: "";
@@ -110,14 +111,16 @@ export default function AnalysisSection({ loading, data, urgencyStyle }: Analysi
           border-radius: 20px; 
           font-weight: 700;
           font-size: 15px;
-          box-shadow: var(--shadow-sm);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+          margin-bottom: 24px; /* 확실한 간격 추가 */
         }
         .detail-card { 
           background: var(--white); 
           padding: 28px; 
           border-radius: 28px; 
-          box-shadow: var(--shadow-card);
+          box-shadow: 0 10px 30px rgba(0,0,0,0.05);
           border: 1px solid rgba(0,0,0,0.02);
+          margin-bottom: 24px; /* 확실한 간격 추가 */
         }
         .detail-text { font-size: 16px; line-height: 1.7; color: var(--gray-800); margin-bottom: 24px; }
         .caution-box { 

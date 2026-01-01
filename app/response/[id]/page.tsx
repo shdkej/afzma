@@ -36,7 +36,7 @@ function ResponseContent() {
           urgencyStyle={urgencyStyle}
         />
 
-        {!loading && (
+        {/* {!loading && (
           <ChatInput
             value={followUpInput}
             onChange={setFollowUpInput}
@@ -45,7 +45,7 @@ function ResponseContent() {
             placeholder="추가로 궁금한 점이 있으신가요?"
             isFixed={true}
           />
-        )}
+        )} */}
 
         {snap === 0.12 && !loading && (
           <button
@@ -56,20 +56,20 @@ function ResponseContent() {
             주변 병원 목록 보기
           </button>
         )}
+
+        <HospitalBottomSheet
+          loading={loading}
+          hospitals={data?.hospitals || null}
+          onHospitalClick={setSelectedHospital}
+          snap={snap}
+          onSnapChange={setSnap}
+        />
+
+        <HospitalDetailModal
+          hospital={selectedHospital}
+          onClose={() => setSelectedHospital(null)}
+        />
       </main>
-
-      <HospitalBottomSheet
-        loading={loading}
-        hospitals={data?.hospitals || null}
-        onHospitalClick={setSelectedHospital}
-        snap={snap}
-        onSnapChange={setSnap}
-      />
-
-      <HospitalDetailModal
-        hospital={selectedHospital}
-        onClose={() => setSelectedHospital(null)}
-      />
 
       <style jsx>{`
         .response-container { 

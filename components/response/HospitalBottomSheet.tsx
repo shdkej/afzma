@@ -1,75 +1,86 @@
 import { Drawer } from 'vaul';
 import { MapPin } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Hospital } from '@/backend/entity';
 
 interface HospitalBottomSheetProps {
-    loading: boolean;
-    hospitals: Hospital[] | null;
-    onHospitalClick: (hospital: Hospital) => void;
-    snap: string | number | null;
-    onSnapChange: (snap: string | number | null) => void;
+  loading: boolean;
+  hospitals: Hospital[] | null;
+  onHospitalClick: (hospital: Hospital) => void;
+  snap: string | number | null;
+  onSnapChange: (snap: string | number | null) => void;
 }
 
 export default function HospitalBottomSheet({
-    loading,
-    hospitals,
-    onHospitalClick,
-    snap,
-    onSnapChange
+  loading,
+  hospitals,
+  onHospitalClick,
+  snap,
+  onSnapChange
 }: HospitalBottomSheetProps) {
-    return (
-        <Drawer.Root
-            modal={false}
-            open={true}
-            dismissible={false}
-            snapPoints={[0.12, 0.5, 0.9, 1]}
-            activeSnapPoint={snap}
-            setActiveSnapPoint={onSnapChange}
-        >
-            <Drawer.Portal>
-                <Drawer.Content className="hospital-sheet">
-                    <div
-                        className="sheet-handle"
-                        onClick={() => {
-                            if (snap === 0.12) onSnapChange(0.5);
-                        }}
-                    >
-                        <div className="handle-bar" />
-                        <Drawer.Title asChild>
-                            <h3>추천 병원 목록</h3>
-                        </Drawer.Title>
-                        <Drawer.Description className="sr-only">
-                            사용자의 증상과 위치를 기반으로 추천된 주변 병원 목록입니다.
-                        </Drawer.Description>
-                    </div>
+  return (
+    <Drawer.Root
+      modal={false}
+      open={true}
+      dismissible={false}
+      snapPoints={[0.12, 0.5, 0.9, 1]}
+      activeSnapPoint={snap}
+      setActiveSnapPoint={onSnapChange}
+    >
+      <Drawer.Portal>
+        <Drawer.Content className="hospital-sheet">
+          <div
+            className="sheet-handle"
+            onClick={() => {
+              if (snap === 0.12) onSnapChange(0.5);
+            }}
+          >
+            <div className="handle-bar" />
+            <Drawer.Title asChild>
+              <h3>추천 병원 목록</h3>
+            </Drawer.Title>
+            <Drawer.Description className="sr-only">
+              사용자의 증상과 위치를 기반으로 추천된 주변 병원 목록입니다.
+            </Drawer.Description>
+          </div>
 
-                    <div className="hospital-list" data-vaul-no-drag>
-                        {loading ? (
-                            [1, 2, 3].map(i => <div key={i} className="skeleton-hospital pulse" />)
-                        ) : hospitals && hospitals.length > 0 ? (
-                            hospitals.map((h) => (
-                                <div key={h.id} className="hospital-item" onClick={() => onHospitalClick(h)}>
-                                    <div className="hospital-img" style={{ backgroundImage: `url(${h.image})` }} />
-                                    <div className="hospital-info">
-                                        <h4>{h.name}</h4>
-                                        <p className="hospital-addr"><MapPin size={12} /> {h.address}</p>
-                                        <div className="hospital-depts">
-                                            {h.department.slice(0, 2).map(d => <span key={d}>{d}</span>)}
-                                        </div>
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="empty-hospitals">
-                                <p>주변에 해당 진료과 병원을 찾을 수 없습니다.</p>
-                                <small>잠시 후 다시 시도해 주세요.</small>
-                            </div>
-                        )}
-                        <div style={{ height: 160 }} />
+          <div className="hospital-list" data-vaul-no-drag>
+            {loading ? (
+              [1, 2, 3].map(i => <div key={i} className="skeleton-hospital pulse" />)
+            ) : hospitals && hospitals.length > 0 ? (
+              hospitals.map((h) => (
+                <motion.div
+                  key={h.id}
+                  layoutId={`hospital-${h.id}`}
+                  className="hospital-item"
+                  onClick={() => onHospitalClick(h)}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <motion.div
+                    layoutId={`hospital-img-${h.id}`}
+                    className="hospital-img"
+                    style={{ backgroundImage: `url(${h.image})` }}
+                  />
+                  <div className="hospital-info">
+                    <h4>{h.name}</h4>
+                    <p className="hospital-addr"><MapPin size={12} /> {h.address}</p>
+                    <div className="hospital-depts">
+                      {h.department.slice(0, 2).map(d => <span key={d}>{d}</span>)}
                     </div>
-                </Drawer.Content>
-            </Drawer.Portal>
-            <style jsx global>{`
+                  </div>
+                </motion.div>
+              ))
+            ) : (
+              <div className="empty-hospitals">
+                <p>주변에 해당 진료과 병원을 찾을 수 없습니다.</p>
+                <small>잠시 후 다시 시도해 주세요.</small>
+              </div>
+            )}
+            <div style={{ height: 160 }} />
+          </div>
+        </Drawer.Content>
+      </Drawer.Portal>
+      <style jsx global>{`
         /* Crucial Fix: Prevent the portal container from blocking background interactions */
         [vaul-portal] {
           pointer-events: none;
@@ -207,6 +218,6 @@ export default function HospitalBottomSheet({
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: .5; } 100% { opacity: 1; } }
         .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
       `}</style>
-        </Drawer.Root>
-    );
+    </Drawer.Root>
+  );
 }

@@ -1,6 +1,10 @@
+'use client';
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, MapPin, Phone, Info } from 'lucide-react';
 import { Hospital } from '@/backend/entity';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 interface HospitalDetailModalProps {
     hospital: Hospital | null;
@@ -8,72 +12,266 @@ interface HospitalDetailModalProps {
 }
 
 export default function HospitalDetailModal({ hospital, onClose }: HospitalDetailModalProps) {
-    return (
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) return null;
+
+    const modalContent = (
         <AnimatePresence>
             {hospital && (
                 <motion.div
-                    className="modal-overlay"
+                    className="hospital-modal-overlay"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={onClose}
                 >
                     <motion.div
-                        className="modal-content"
-                        initial={{ y: '100%' }}
-                        animate={{ y: 0 }}
-                        exit={{ y: '100%' }}
-                        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                        className="hospital-modal-container"
+                        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                        animate={{ scale: 1, opacity: 1, y: 0 }}
+                        exit={{ scale: 0.9, opacity: 0, y: 20 }}
                         onClick={e => e.stopPropagation()}
+                        transition={{
+                            type: 'spring',
+                            damping: 25,
+                            stiffness: 300
+                        }}
                     >
-                        <button className="close-button" onClick={onClose}>
-                            <X size={24} />
+                        <button
+                            className="h-modal-close-btn"
+                            onClick={onClose}
+                        >
+                            <X size={20} />
                         </button>
-                        <div className="modal-img" style={{ backgroundImage: `url(${hospital.image})` }} />
-                        <div className="modal-body">
-                            <span className="modal-dept">병원 상세 정보</span>
-                            <h2>{hospital.name}</h2>
-                            <div className="modal-info-grid">
-                                <div className="info-item">
-                                    <MapPin size={18} color="#2D5A27" />
-                                    <div><label>주소</label><p>{hospital.address}</p></div>
+
+                        <div className="h-modal-scroll-node">
+                            <div
+                                className="h-modal-image"
+                                style={{ backgroundImage: `url(${hospital.image})` }}
+                            />
+                            <div className="h-modal-body">
+                                <span className="h-modal-label">병원 상세 정보</span>
+                                <h2>{hospital.name}</h2>
+
+                                <div className="h-modal-info-section">
+                                    <div className="h-modal-info-row">
+                                        <div className="h-modal-icon-box"><MapPin size={16} /></div>
+                                        <div className="h-modal-text">
+                                            <label>주소</label>
+                                            <p>{hospital.address}</p>
+                                        </div>
+                                    </div>
+                                    <div className="h-modal-info-row">
+                                        <div className="h-modal-icon-box"><Phone size={16} /></div>
+                                        <div className="h-modal-text">
+                                            <label>전화번호</label>
+                                            <p>{hospital.phone}</p>
+                                        </div>
+                                    </div>
+                                    <div className="h-modal-info-row">
+                                        <div className="h-modal-icon-box"><Info size={16} /></div>
+                                        <div className="h-modal-text">
+                                            <label>진료 과목</label>
+                                            <p>{hospital.department.join(', ')}</p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="info-item">
-                                    <Phone size={18} color="#2D5A27" />
-                                    <div><label>전화번호</label><p>{hospital.phone}</p></div>
-                                </div>
-                                <div className="info-item">
-                                    <Info size={18} color="#2D5A27" />
-                                    <div><label>진료 과목</label><p>{hospital.department.join(', ')}</p></div>
+
+                                <div className="h-modal-desc">
+                                    <label>병원 소개</label>
+                                    <p>{hospital.description}</p>
                                 </div>
                             </div>
-                            <div className="modal-desc">
-                                <label>소개</label>
-                                <p>{hospital.description}</p>
-                            </div>
-                            <button className="call-button"><Phone size={18} /> 전화 문의하기</button>
+                        </div>
+
+                        <div className="h-modal-footer">
+                            <button className="h-modal-call-btn">
+                                <Phone size={18} /> 전화 문의하기
+                            </button>
                         </div>
                     </motion.div>
-                    <style jsx>{`
-            .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10000; display: flex; align-items: flex-end; }
-            .modal-content { width: 100%; height: 88vh; background: var(--white); border-radius: 32px 32px 0 0; position: relative; overflow-y: auto; box-shadow: 0 -20px 60px rgba(0,0,0,0.3); }
-            .close-button { position: absolute; top: 20px; right: 20px; width: 44px; height: 44px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); border-radius: 50%; z-index: 10; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); color: var(--gray-800); }
-            .modal-img { width: 100%; height: 280px; background-size: cover; background-position: center; border-bottom: 1px solid rgba(0,0,0,0.05); }
-            .modal-body { padding: 32px 24px 60px; display: flex; flex-direction: column; gap: 28px; }
-            .modal-dept { font-size: 13px; font-weight: 800; color: var(--primary); background: var(--primary-soft); padding: 6px 14px; border-radius: 12px; width: fit-content; text-transform: uppercase; letter-spacing: 0.5px; }
-            .modal-body h2 { font-size: 28px; font-weight: 800; color: var(--gray-800); letter-spacing: -0.5px; }
-            .modal-info-grid { display: flex; flex-direction: column; gap: 24px; }
-            .info-item { display: flex; gap: 16px; align-items: flex-start; }
-            .info-item label { font-size: 13px; font-weight: 700; color: var(--gray-400); display: block; margin-bottom: 4px; }
-            .info-item p { font-size: 16px; font-weight: 600; color: var(--gray-800); line-height: 1.5; }
-            .modal-desc { background: var(--gray-50); padding: 20px; border-radius: 20px; }
-            .modal-desc label { font-size: 13px; font-weight: 700; color: var(--gray-400); display: block; margin-bottom: 8px; }
-            .modal-desc p { font-size: 16px; line-height: 1.7; color: var(--gray-600); }
-            .call-button { background: var(--primary-gradient); color: white; padding: 18px; border-radius: 20px; font-weight: 800; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 20px; box-shadow: 0 12px 24px rgba(45,90,39,0.25), inset 0 2px 0 rgba(255,255,255,0.3); transition: all 0.3s ease; }
-            .call-button:active { transform: scale(0.98); }
-          `}</style>
                 </motion.div>
             )}
+            <style jsx global>{`
+                .hospital-modal-overlay { 
+                    position: fixed !important; 
+                    top: 0 !important; 
+                    left: 0 !important; 
+                    width: 100vw !important;
+                    height: 100vh !important;
+                    background: rgba(0, 0, 0, 0.45) !important; 
+                    backdrop-filter: blur(8px) !important;
+                    -webkit-backdrop-filter: blur(8px) !important;
+                    z-index: 9999999 !important;
+                    display: flex !important; 
+                    align-items: center !important; 
+                    justify-content: center !important;
+                    padding: 0 5px !important;
+                    pointer-events: auto !important;
+                }
+                
+                .hospital-modal-container { 
+                    width: 100%; 
+                    max-width: 480px;
+                    aspect-ratio: 1 / 1; 
+                    background: #FFFFFF; 
+                    border-radius: 24px;
+                    position: relative; 
+                    overflow: hidden; 
+                    display: flex;
+                    flex-direction: column;
+                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+                }
+
+                .h-modal-scroll-node {
+                    flex: 1;
+                    overflow-y: auto;
+                    scrollbar-width: none;
+                }
+                .h-modal-scroll-node::-webkit-scrollbar { display: none; }
+
+                .h-modal-close-btn { 
+                    position: absolute; 
+                    top: 12px; 
+                    right: 12px; 
+                    width: 36px; 
+                    height: 36px; 
+                    background: rgba(255, 255, 255, 0.9); 
+                    border-radius: 50%; 
+                    z-index: 100; 
+                    display: flex; 
+                    align-items: center; 
+                    justify-content: center; 
+                    color: #111827; 
+                    border: none;
+                    cursor: pointer;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                }
+
+                .h-modal-image { 
+                    width: 100%; 
+                    height: 38%; 
+                    background-size: cover; 
+                    background-position: center; 
+                }
+
+                .h-modal-body { 
+                    padding: 20px; 
+                    display: flex; 
+                    flex-direction: column; 
+                    gap: 16px; 
+                }
+
+                .h-modal-label { 
+                    font-size: 10px; 
+                    font-weight: 700; 
+                    color: #2D5A27; 
+                    background: rgba(45, 90, 39, 0.08); 
+                    padding: 4px 10px; 
+                    border-radius: 8px; 
+                    width: fit-content;
+                }
+
+                .h-modal-body h2 { 
+                    font-size: 22px; 
+                    font-weight: 800; 
+                    color: #111827; 
+                    margin: 0;
+                    letter-spacing: -0.5px;
+                }
+
+                .h-modal-info-section { 
+                    display: flex; 
+                    flex-direction: column; 
+                    gap: 14px; 
+                }
+
+                .h-modal-info-row { 
+                    display: flex; 
+                    gap: 12px; 
+                    align-items: flex-start; 
+                }
+
+                .h-modal-icon-box { 
+                    width: 32px; 
+                    height: 32px; 
+                    background: #F9FAFB; 
+                    color: #2D5A27; 
+                    border-radius: 10px; 
+                    display: flex; 
+                    align-items: center; 
+                    justify-content: center; 
+                    flex-shrink: 0; 
+                }
+
+                .h-modal-text label { 
+                    font-size: 12px; 
+                    font-weight: 600; 
+                    color: #9CA3AF; 
+                    display: block; 
+                    margin-bottom: 2px; 
+                }
+
+                .h-modal-text p { 
+                    font-size: 14px; 
+                    font-weight: 500; 
+                    color: #1F2937; 
+                    line-height: 1.4; 
+                    margin: 0; 
+                }
+
+                .h-modal-desc { 
+                    background: #F9FAFB; 
+                    padding: 16px; 
+                    border-radius: 16px; 
+                }
+
+                .h-modal-desc label { 
+                    font-size: 11px; 
+                    font-weight: 700; 
+                    color: #9CA3AF; 
+                    display: block; 
+                    margin-bottom: 6px; 
+                }
+
+                .h-modal-desc p { 
+                    font-size: 14px; 
+                    line-height: 1.5; 
+                    color: #4B5563; 
+                    margin: 0; 
+                }
+                
+                .h-modal-footer {
+                    padding: 16px 20px;
+                    background: #FFFFFF;
+                    border-top: 1px solid #F3F4F6;
+                }
+
+                .h-modal-call-btn { 
+                    width: 100%; 
+                    background: #2D5A27; 
+                    color: #FFFFFF; 
+                    padding: 14px; 
+                    border-radius: 16px; 
+                    font-weight: 700; 
+                    font-size: 16px; 
+                    display: flex; 
+                    align-items: center; 
+                    justify-content: center; 
+                    gap: 8px; 
+                    border: none;
+                    cursor: pointer;
+                }
+
+                .h-modal-call-btn:active { transform: scale(0.98); }
+            `}</style>
         </AnimatePresence>
     );
+
+    return createPortal(modalContent, document.body);
 }
