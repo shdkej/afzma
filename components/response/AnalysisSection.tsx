@@ -2,12 +2,18 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, AlertTriangle } from 'lucide-react';
 import { MedicalAnalysis } from '@/backend/entity';
+import ChatInput from '@/components/common/ChatInput';
 
 interface AnalysisSectionProps {
     loading: boolean;
     data: { analysis: MedicalAnalysis } | null;
     urgencyStyle: { bg: string; text: string };
     userSymptom: string;
+    showFollowUp?: boolean;
+    followUpInput?: string;
+    setFollowUpInput?: (val: string) => void;
+    onFollowUpSubmit?: (message?: string, e?: React.FormEvent) => void;
+    onAskAgain?: () => void;
 }
 
 const TIPS = [
@@ -19,8 +25,23 @@ const TIPS = [
     "건강한 신체에 건강한 정신이 깃듭니다. (분석이 거의 다 됐어요!)"
 ];
 
-export default function AnalysisSection({ loading, data, urgencyStyle, userSymptom }: AnalysisSectionProps) {
+export default function AnalysisSection({
+    loading,
+    data,
+    urgencyStyle,
+    userSymptom,
+    showFollowUp,
+    followUpInput,
+    setFollowUpInput,
+    onFollowUpSubmit,
+    onAskAgain
+}: AnalysisSectionProps) {
     const [tipIndex, setTipIndex] = useState<number>(-1);
+    const [localFollowUp, setLocalFollowUp] = useState<string>(followUpInput || '');
+
+    useEffect(() => {
+        setLocalFollowUp(followUpInput || '');
+    }, [followUpInput]);
 
     useEffect(() => {
         if (!loading) return;
@@ -237,6 +258,7 @@ export default function AnalysisSection({ loading, data, urgencyStyle, userSympt
             -webkit-text-fill-color: transparent;
             line-height: 1.1;
             letter-spacing: -1px;
+            white-space: nowrap; /* 진료과목 한 줄 유지 */
         }
         .urgency-badge {
             display: flex;
@@ -283,9 +305,41 @@ export default function AnalysisSection({ loading, data, urgencyStyle, userSympt
             width: 18px;
             height: 18px;
         }
+
+        /* Ask Again */
+        .section-ask-again {
+            padding-top: 40px;
+            display: flex;
+            justify-content: center;
+        }
+        .ask-again-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 24px;
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid #dcfce7;
+            border-radius: 100px;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(21, 128, 61, 0.08);
+        }
+        .ask-again-btn:hover {
+            background: #dcfce7;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(21, 128, 61, 0.12);
+        }
+        .ask-again-btn:active {
+            transform: translateY(0);
+        }
+        .inline-chat-container {
+            position: relative;
+            z-index: 20000;
+            pointer-events: auto;
+        }
       `}</style>
         </div>
     );
 }
-
-

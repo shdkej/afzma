@@ -6,7 +6,6 @@ import { useMedicalResponse } from '@/hooks/useMedicalResponse';
 // Sub-components
 import ResponseHeader from '@/components/response/ResponseHeader';
 import AnalysisSection from '@/components/response/AnalysisSection';
-import ChatInput from '@/components/common/ChatInput';
 import HospitalBottomSheet from '@/components/response/HospitalBottomSheet';
 import HospitalDetailModal from '@/components/response/HospitalDetailModal';
 
@@ -23,6 +22,8 @@ function ResponseContent() {
     handleFollowUpSubmit,
     userSymptom,
     urgencyStyle,
+    showFollowUp,
+    onAskAgain,
   } = useMedicalResponse();
 
   return (
@@ -35,18 +36,14 @@ function ResponseContent() {
           data={data}
           urgencyStyle={urgencyStyle}
           userSymptom={userSymptom}
+          showFollowUp={showFollowUp}
+          onAskAgain={onAskAgain}
+          followUpInput={followUpInput}
+          setFollowUpInput={setFollowUpInput}
+          onFollowUpSubmit={handleFollowUpSubmit}
         />
 
-        {/* {!loading && (
-          <ChatInput
-            value={followUpInput}
-            onChange={setFollowUpInput}
-            onSubmit={handleFollowUpSubmit}
-            isLoading={loading}
-            placeholder="추가로 궁금한 점이 있으신가요?"
-            isFixed={true}
-          />
-        )} */}
+        {/* 병원 리스트 버튼 */}
 
         {snap === 0.12 && !loading && (
           <button
@@ -64,6 +61,7 @@ function ResponseContent() {
           onHospitalClick={setSelectedHospital}
           snap={snap}
           onSnapChange={setSnap}
+          disablePointer={showFollowUp}
         />
 
         <HospitalDetailModal

@@ -9,6 +9,7 @@ interface HospitalBottomSheetProps {
   onHospitalClick: (hospital: Hospital) => void;
   snap: string | number | null;
   onSnapChange: (snap: string | number | null) => void;
+  disablePointer?: boolean;
 }
 
 export default function HospitalBottomSheet({
@@ -16,7 +17,8 @@ export default function HospitalBottomSheet({
   hospitals,
   onHospitalClick,
   snap,
-  onSnapChange
+  onSnapChange,
+  disablePointer = false
 }: HospitalBottomSheetProps) {
   return (
     <Drawer.Root
@@ -28,7 +30,7 @@ export default function HospitalBottomSheet({
       setActiveSnapPoint={onSnapChange}
     >
       <Drawer.Portal>
-        <Drawer.Content className="hospital-sheet">
+        <Drawer.Content className="hospital-sheet" data-disabled={disablePointer}>
           <div
             className="sheet-handle"
             onClick={() => {
@@ -101,6 +103,9 @@ export default function HospitalBottomSheet({
           right: 0;
           height: auto;
           transform: translate3d(0, 0, 0); /* Force GPU acceleration */
+        }
+        .hospital-sheet[data-disabled="true"] {
+          pointer-events: none !important;
         }
         .sheet-handle { 
           padding: 16px 24px 20px; 

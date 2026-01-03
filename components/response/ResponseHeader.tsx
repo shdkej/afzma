@@ -21,6 +21,8 @@ export default function ResponseHeader({ }: ResponseHeaderProps) {
           flex-shrink: 0;
           background: transparent;
           border-bottom: none;
+          position: relative;
+          z-index: 10001; /* 최상단 레벨 유지 */
         }
         .back-button { 
           width: 40px; 

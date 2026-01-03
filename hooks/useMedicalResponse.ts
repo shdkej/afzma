@@ -14,6 +14,15 @@ export function useMedicalResponse() {
   const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null);
   const [snap, setSnap] = useState<string | number | null>(0.12);
   const [followUpInput, setFollowUpInput] = useState('');
+  const [showFollowUp, setShowFollowUp] = useState(false);
+
+  const onAskAgain = () => {
+    setShowFollowUp(true);
+    // Scroll to bottom after state change
+    setTimeout(() => {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }, 100);
+  };
 
   useEffect(() => {
     const message = searchParams.get('message');
@@ -70,13 +79,16 @@ export function useMedicalResponse() {
     }
   };
 
-  const handleFollowUpSubmit = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!followUpInput.trim() || loading) return;
+  const handleFollowUpSubmit = async (messageOrEvent?: string | React.FormEvent, e?: React.FormEvent) => {
+    const event = (messageOrEvent as React.FormEvent) ?? e;
+    event?.preventDefault();
 
-    const message = followUpInput;
+    const nextMessage = (typeof messageOrEvent === 'string' ? messageOrEvent : followUpInput).trim();
+    if (!nextMessage || loading) return;
+
     setFollowUpInput('');
-    await handleChat(message);
+    setShowFollowUp(false);
+    await handleChat(nextMessage);
   };
 
   const userSymptom = searchParams.get('message') || '내용 없음';
@@ -105,6 +117,8 @@ export function useMedicalResponse() {
     handleFollowUpSubmit,
     userSymptom,
     urgencyStyle,
+    showFollowUp,
+    onAskAgain,
     router
   };
 }
