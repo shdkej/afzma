@@ -11,15 +11,16 @@ export default $config({
     };
   },
   async run() {
+    const secret = new sst.Secret("OPENAI_API_KEY");
     const myWeb = new sst.aws.Nextjs("MyWeb", {
-      link: [],
+      link: [secret],
       environment: {
         REDEPLOY_SKIP_CACHE: Date.now().toString(),
       }
     });
     const fn = myWeb.nodes.server?.nodes.function;
     new aws.lambda.Permission("MyWebInvokePermission", {
-      action: "lambda:InvokeFunction", 
+      action: "lambda:InvokeFunctionUrl", 
       function: fn!.name,
       principal: "*",
       functionUrlAuthType: "NONE",

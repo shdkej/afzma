@@ -6,6 +6,7 @@ import { ChatHistory, Message, MedicalAnalysis, Hospital } from './entity';
 
 import { DEPARTMENT_CODES } from './constants';
 import { parseStringPromise } from 'xml2js';
+import { Resource } from 'sst';
 
 export class MedicalService {
   private openai: OpenAI | null = null;
@@ -13,8 +14,20 @@ export class MedicalService {
   private hiraApiKey: string | undefined;
 
   constructor() {
-    if (process.env.OPENAI_API_KEY) {
-      this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    let openAiKey = process.env.OPENAI_API_KEY;
+
+    try {
+      // @ts-ignore
+      if (!openAiKey && Resource.OPENAI_API_KEY) {
+        // @ts-ignore
+        openAiKey = Resource.OPENAI_API_KEY.value;
+      }
+    } catch (e) {
+      // Ignore error if Resource is not available (e.g. not running in SST context)
+    }
+
+    if (openAiKey) {
+      this.openai = new OpenAI({ apiKey: openAiKey });
     }
     if (process.env.GEMINI_API_KEY) {
       this.gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
