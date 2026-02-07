@@ -13,6 +13,12 @@ export default $config({
   async run() {
     const secret = new sst.Secret("OPENAI_API_KEY");
     const myWeb = new sst.aws.Nextjs("MyWeb", {
+      domain: {
+        name: "afzma.aws.shdkej.com",
+        dns: sst.aws.dns({
+          zone: "Z07242312C5BE3VLQW344",
+        }),
+      },
       link: [secret],
       environment: {
         REDEPLOY_SKIP_CACHE: Date.now().toString(),
