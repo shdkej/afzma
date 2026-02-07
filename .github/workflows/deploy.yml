@@ -20,7 +20,9 @@ jobs:
           cache: npm
 
       - name: Remove preinstalled Pulumi
-        run: rm -rf "$HOME/.pulumi"
+        run: |
+          rm -rf "$HOME/.pulumi"
+          sudo rm -f /usr/local/bin/pulumi*
 
       - run: npm ci
 
