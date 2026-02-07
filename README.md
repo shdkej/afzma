@@ -30,10 +30,31 @@
    GEMINI_API_KEY=your_gemini_api_key
    ```
 
-3. **개발 서버 실행**:
+3. **개발 서버 실행 (SST)**:
    ```bash
-   npm run dev
+   npx sst dev
    ```
+
+## 빌드 및 배포
+
+SST를 사용하여 AWS에 배포합니다. 도메인은 `afzma.aws.shdkej.com`으로 Route53을 통해 연결됩니다.
+
+### 로컬에서 수동 배포
+
+```bash
+npx sst deploy --stage seongho-noh
+```
+
+### GitHub Actions 자동 배포
+
+`main` 브랜치에 push하면 GitHub Actions를 통해 자동 배포됩니다.
+
+GitHub 리포지토리에 아래 Secrets 등록이 필요합니다:
+
+| Secret | 설명 |
+|--------|------|
+| `AWS_ACCESS_KEY_ID` | AWS IAM Access Key |
+| `AWS_SECRET_ACCESS_KEY` | AWS IAM Secret Key |
 
 ## 백엔드 구조
 
