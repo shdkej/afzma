@@ -16,12 +16,15 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
+
+      - name: Remove preinstalled Pulumi
+        run: rm -rf "$HOME/.pulumi"
 
       - run: npm ci
 
-      - run: npx sst deploy --stage production
+      - run: npx sst deploy --stage seongho-noh
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
